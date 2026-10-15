@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from playwright.async_api import async_playwright
 
 BASE="https://reserve.489ban.net/client/notoyaryokan/0/plan/availability/room/stay"
-TARGETS=["2026-12-01","2026-12-15","2027-01-01","2027-01-15","2027-02-01","2027-02-15"]
+TARGETS=["2026-12-01","2026-12-15","2026-12-29","2027-01-01","2027-01-15","2027-01-29","2027-02-01","2027-02-15"]
 ROOMS={"room_38492":"本館川側10畳客室","room_38586":"本館川側7.5畳和室","room_38585":"本館川側2間客室"}
 OUT=Path("artifacts");OUT.mkdir(exist_ok=True)
 
