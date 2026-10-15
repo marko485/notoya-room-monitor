@@ -1,0 +1,43 @@
+name: Notoya safe monitoring pilot
+on:
+  workflow_dispatch:
+    inputs:
+      email_test:
+        description: 'Send a single clearly-labelled TEST email using Brevo secrets (no vacancy claim)'
+        type: boolean
+        required: true
+        default: false
+  schedule:
+    - cron: '17 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: notoya-safe-pilot
+  cancel-in-progress: false
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install playwright==1.58.0
+      - run: python -m playwright install --with-deps chromium
+      - name: Read-only calendar scanning (diagnostic only)
+        run: python scan_six_windows.py
+      - name: Upload scan report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: notoya-safe-pilot-report
+          path: artifacts/six-windows.json
+          retention-days: 7
+      - name: Manual-only email delivery smoke test
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.email_test == true }}
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: python email_test.py
